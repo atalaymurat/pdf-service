@@ -9,5 +9,5 @@ app.use(bodyParser.json({ limit: "10mb" }));
 app.use("/generate", pdfRoutes);
 app.use("/pdfs", express.static(path.join(__dirname, "outputs"))); // optional: expose PDFs via URL
 
-const PORT = process.env.PORT || 5005;
+const PORT = process.env.PORT || 3023;
 app.listen(PORT, () => console.log(`Postiva PDF service running on port ${PORT}`));

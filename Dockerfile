@@ -14,7 +14,7 @@ RUN npm install
 COPY . .
 
 # Uygulamanın hangi portta çalışacağını belirt (örneğin 3001)
-EXPOSE 5005
+EXPOSE 3023
 
 # Başlatma komutu
 CMD ["npm", "start"]
