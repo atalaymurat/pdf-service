@@ -18,7 +18,7 @@ function buildOptions(options) {
   if (!options?.length) return null;
   return {
     stack: options.map((opt) => ({
-      text: `· ${capitalizeTR(s(opt.label || opt.title || opt.desc))}`,
+      text: `· ${capitalizeTR(s(opt.label || opt.title))}`,
       fontSize: 7.5,
       color: "#9ca3af",
       margin: [0, 1, 0, 0],
