@@ -35,3 +35,4 @@ tmp/
 *.seed
 docker-compose.override.yml
 node_modules/
+outputs/
