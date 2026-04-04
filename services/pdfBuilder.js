@@ -1,24 +1,26 @@
 const PdfPrinter = require("pdfmake");
 const path = require("path");
+const fs = require("fs");
+
+function resolveFontPath(noto, roboto) {
+  const notoPath   = path.join(__dirname, "../assets/fonts", noto);
+  const robotoPath = path.join(__dirname, "../assets/fonts", roboto);
+  if (fs.existsSync(notoPath)) return notoPath;
+  console.warn(`[pdf] Font bulunamadı: ${noto}, Roboto'ya dönülüyor.`);
+  return robotoPath;
+}
 
 const fonts = {
   Roboto: {
-    normal: path.join(__dirname, "../assets/fonts/NotoSans-Regular.ttf"),
-    bold: path.join(__dirname, "../assets/fonts/NotoSans-Bold.ttf"),
-    italics: path.join(__dirname, "../assets/fonts/NotoSans-Regular.ttf"),
-    bolditalics: path.join(__dirname, "../assets/fonts/NotoSans-Bold.ttf"),
+    normal:      resolveFontPath("NotoSans-Regular.ttf", "Roboto-Regular.ttf"),
+    bold:        resolveFontPath("NotoSans-Bold.ttf",    "Roboto-Bold.ttf"),
+    italics:     resolveFontPath("NotoSans-Regular.ttf", "Roboto-Regular.ttf"),
+    bolditalics: resolveFontPath("NotoSans-Bold.ttf",    "Roboto-Bold.ttf"),
   },
 };
 
 const printer = new PdfPrinter(fonts);
 
-/**
- * Ana PDF üretici.
- * @param {Object} body - { template?: string, data: Object }
- * @param {Response} res - Express response
- *
- * Backward compat: eğer body.data yoksa tüm body = data, template = "quotation"
- */
 module.exports = async function generatePdf(body, res) {
   const template = body.template || "quotation";
   const data = body.data || body;
