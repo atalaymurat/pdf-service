@@ -6,6 +6,8 @@ const path = require("path");
 const app = express();
 app.use(bodyParser.json({ limit: "10mb" }));
 
+app.get("/health", (req, res) => res.json({ status: "ok", service: "pdf-service" }));
+
 app.use("/generate", pdfRoutes);
 app.use("/pdfs", express.static(path.join(__dirname, "outputs"))); // optional: expose PDFs via URL
 
