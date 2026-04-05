@@ -1,15 +1,19 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
-const pdfRoutes = require("./routes/pdfRoutes");
 const path = require("path");
+const internalAuth = require("./middleware/internalAuth");
+const pdfRoutes = require("./routes/pdfRoutes");
 
 const app = express();
 app.use(bodyParser.json({ limit: "10mb" }));
 
-app.get("/health", (req, res) => res.json({ status: "ok", service: "pdf-service" }));
+// Tüm route'lara internal API key kontrolü
+app.use(internalAuth);
 
+app.get("/health", (req, res) => res.json({ status: "ok", service: "pdf-service" }));
 app.use("/generate", pdfRoutes);
-app.use("/pdfs", express.static(path.join(__dirname, "outputs"))); // optional: expose PDFs via URL
+app.use("/pdfs", express.static(path.join(__dirname, "outputs")));
 
 const PORT = process.env.PORT || 3023;
 app.listen(PORT, () => console.log(`Postiva PDF service running on port ${PORT}`));

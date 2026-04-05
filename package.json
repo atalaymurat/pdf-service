@@ -13,6 +13,7 @@
   "type": "commonjs",
   "dependencies": {
     "body-parser": "^2.2.0",
+    "dotenv": "^17.4.1",
     "express": "^5.1.0",
     "pdfmake": "^0.2.20"
   },

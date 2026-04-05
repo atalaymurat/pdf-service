@@ -11,6 +11,7 @@ logs
 
 # dotenv environment files
 .env
+.env.production
 .env.local
 .env.*.local
 
