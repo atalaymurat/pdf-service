@@ -17,12 +17,16 @@ function sectionLabel(text) {
 function buildOptions(options) {
   if (!options?.length) return null;
   return {
-    stack: options.map((opt) => ({
-      text: `· ${capitalizeTR(s(opt.label || opt.title))}`,
-      fontSize: 7.5,
-      color: "#9ca3af",
-      margin: [0, 1, 0, 0],
-    })),
+    stack: options.map((opt) => {
+      const title = capitalizeTR(s(opt.label || opt.title));
+      const qty = opt.quantity != null && opt.quantity > 1 ? ` ${opt.quantity} adet` : "";
+      return {
+        text: `· ${title}${qty}`,
+        fontSize: 7.5,
+        color: "#9ca3af",
+        margin: [0, 1, 0, 0],
+      };
+    }),
   };
 }
 

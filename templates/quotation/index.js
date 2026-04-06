@@ -3,6 +3,8 @@ const { resolveImage } = require("../../lib/imageLoader");
 const buildItemsTable = require("./buildItems");
 const { buildTotals } = require("./buildSummary");
 const buildTerms = require("./buildTerms");
+const buildBankAccounts = require("./buildBankAccounts");
+const buildItemDetails = require("../shared/buildItemDetails");
 
 const s = (v) => (v != null && v !== "" ? String(v) : "—");
 
@@ -38,6 +40,8 @@ module.exports = async function (data) {
     ? await resolveImage(data.logoUrl).catch(() => null)
     : null;
 
+  const itemDetails = await buildItemDetails(ver.lineItems, { accentColor: C.accent });
+
   return {
     pageSize: "A4",
     pageMargins: [36, 36, 36, 36],
@@ -59,6 +63,10 @@ module.exports = async function (data) {
       buildItemsTable(ver),
       ...buildTotals(ver),
       ...buildTerms(ver.offerTerms, ver.docType || docType),
+      ...(["Proforma", "Sipariş", "Sözleşme"].includes(docType)
+        ? buildBankAccounts(data.bankAccounts)
+        : []),
+      ...(itemDetails ? [itemDetails] : []),
     ],
     styles: STYLES,
     defaultStyle: { fontSize: 9, font: "Roboto", color: C.body },
