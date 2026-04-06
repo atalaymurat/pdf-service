@@ -1,7 +1,8 @@
 const { localeDate, capitalizeTR } = require("../../lib/helpers");
 const { resolveImage } = require("../../lib/imageLoader");
 const buildItemsTable = require("./buildItems");
-const { buildTotals, buildTerms } = require("./buildSummary");
+const { buildTotals } = require("./buildSummary");
+const buildTerms = require("./buildTerms");
 
 const s = (v) => (v != null && v !== "" ? String(v) : "—");
 
@@ -15,9 +16,19 @@ const C = {
   white:  "#ffffff",
 };
 
+const DOC_TITLE = {
+  "Teklif":   "Fiyat Teklifi",
+  "Proforma": "Proforma Fatura",
+  "Fatura":   "Fatura",
+  "Sipariş":  "Sipariş",
+  "Sözleşme": "Sözleşme",
+};
+
 module.exports = async function (data) {
-  const { docCode, docType, versions, company } = data;
+  const { versions, company } = data;
   const ver = versions[versions.length - 1];
+  const docCode = ver.docCode;
+  const docType = ver.docType;
 
   const addr = company?.addresses?.[0];
   const addrStr = [addr?.line1, addr?.line2, addr?.district, addr?.city, addr?.country]
@@ -47,7 +58,7 @@ module.exports = async function (data) {
       buildCompany(company, addrStr, data.contact),
       buildItemsTable(ver),
       ...buildTotals(ver),
-      ...buildTerms(ver),
+      ...buildTerms(ver.offerTerms, ver.docType || docType),
     ],
     styles: STYLES,
     defaultStyle: { fontSize: 9, font: "Roboto", color: C.body },
@@ -71,7 +82,7 @@ function buildHeader(logo, docType, docCode, ver) {
 
   return {
     columns: [
-      { stack: [logoCell], width: 56 },
+      { stack: [logoCell], width: 130 },
       { width: "*", text: "" },
       {
         width: "auto",
@@ -107,8 +118,9 @@ function buildAccentLine() {
 }
 
 function buildDocTitle(docType) {
+  const title = DOC_TITLE[docType] || "Fiyat Teklifi";
   return {
-    text: (docType || "Fiyat Teklifi").toLocaleUpperCase("tr-TR"),
+    text: title.toLocaleUpperCase("tr-TR"),
     style: "docTitle",
     margin: [0, 0, 0, 6],
   };
