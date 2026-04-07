@@ -8,10 +8,13 @@ const pdfRoutes = require("./routes/pdfRoutes");
 const app = express();
 app.use(bodyParser.json({ limit: "10mb" }));
 
+// Health check — auth olmadan erişilebilir olmalı
+app.get("/health", (req, res) => res.json({ status: "ok", service: "pdf-service" }));
+
+
 // Tüm route'lara internal API key kontrolü
 app.use(internalAuth);
 
-app.get("/health", (req, res) => res.json({ status: "ok", service: "pdf-service" }));
 app.use("/generate", pdfRoutes);
 app.use("/pdfs", express.static(path.join(__dirname, "outputs")));
 

@@ -62,8 +62,8 @@ function buildCardHeader(image, item, accentColor) {
       dontBreakRows: true,
       body: [[
         { canvas: [{ type: "rect", x: 0, y: 0, w: 3, h: 80, color: accentColor }], border: [false, false, false, false] },
-        { stack: [imgCell], fillColor: HDR_BG, border: [false, false, false, false], margin: [4, 4, 4, 4] },
-        { stack: infoStack, fillColor: HDR_BG, border: [false, false, false, false], margin: [8, 8, 0, 8] },
+        { stack: [imgCell], fillColor: "#ffffff", border: [false, false, false, false], margin: [4, 4, 4, 4] },
+        { stack: infoStack, fillColor: "#ffffff", border: [false, false, false, false], margin: [8, 8, 0, 8] },
       ]],
     },
     layout: {
