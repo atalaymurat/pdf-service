@@ -1,4 +1,4 @@
-const { formPrice } = require("../../lib/helpers");
+const { formPrice, currencySymbol } = require("../../lib/helpers");
 
 const C = {
   ink:    "#0f172a",
@@ -7,6 +7,8 @@ const C = {
   accent: "#0ea5e9",
   border: "#e2e8f0",
 };
+
+const CURRENCY_LABEL = { EUR: "EUR", USD: "USD", TRY: "TRY", GBP: "GBP" };
 
 function sectionLabel(text) {
   return {
@@ -18,50 +20,43 @@ function sectionLabel(text) {
   };
 }
 
-function buildTotals(ver) {
-  const rows = [];
+function buildCurrencyTotals(currency, totals, ver) {
+  const sym   = currencySymbol(currency);
+  const label = CURRENCY_LABEL[currency] || currency;
+  const rows  = [];
 
-  if (ver.priceOfferTotal?.value) {
+  if (totals.priceOfferTotal) {
     rows.push([
       { text: "Ara Toplam", style: "totalLabel" },
-      { text: formPrice(ver.priceOfferTotal.value), style: "totalValue" },
+      { text: `${formPrice(totals.priceOfferTotal)} ${sym}`, style: "totalValue" },
     ]);
   }
-  if (ver.showDiscount && ver.priceDiscount?.value > 0) {
-    rows.push([
-      { text: "İndirim", style: "totalLabel", color: "#ef4444" },
-      { text: `- ${formPrice(ver.priceDiscount.value)}`, style: "totalValue", color: "#ef4444" },
-    ]);
-  }
-  if (ver.showVat && ver.priceVat?.value) {
+
+  if (ver.showVat && totals.priceVat > 0) {
     const rate = ver.vatRate > 1 ? ver.vatRate : Math.round(ver.vatRate * 100);
     rows.push([
-      { text: `KDV${ver.vatRate ? ` (%${rate})` : ""}`, style: "totalLabel" },
-      { text: formPrice(ver.priceVat.value), style: "totalValue" },
+      { text: `KDV (%${rate})`, style: "totalLabel" },
+      { text: `${formPrice(totals.priceVat)} ${sym}`, style: "totalValue" },
     ]);
   }
 
-  const grandRow = ver.priceGrandTotal?.value
-    ? [[
-        { text: "GENEL TOPLAM", fontSize: 10, bold: true, alignment: "right", color: C.ink },
-        { text: formPrice(ver.priceGrandTotal.value), fontSize: 10, bold: true, alignment: "right", color: C.ink },
-      ]]
-    : [];
+  if (totals.priceGrandTotal) {
+    rows.push([
+      { text: `${label} TOPLAM`, fontSize: 10, bold: true, alignment: "right", color: C.ink },
+      { text: `${formPrice(totals.priceGrandTotal)} ${sym}`, fontSize: 10, bold: true, alignment: "right", color: C.ink },
+    ]);
+  }
 
-  if (!rows.length && !grandRow.length) return [];
+  if (!rows.length) return null;
 
-  const sepRow = grandRow.length && rows.length
-    ? [[{ text: "", border: [false, true, false, false], borderColor: [C.border, C.border, C.border, C.border], colSpan: 2 }, {}]]
-    : [];
-
-  return [{
+  return {
     columns: [
       { width: "*", text: "" },
       {
         width: "auto",
-        table: { widths: [130, 100], body: [...rows, ...sepRow, ...grandRow] },
+        table: { widths: [130, 100], body: rows },
         layout: {
-          hLineWidth: (i) => (i === rows.length + (sepRow.length ? 1 : 0)) ? 0.6 : 0,
+          hLineWidth: (i) => (i === rows.length - 1) ? 0.6 : 0,
           vLineWidth: () => 0,
           hLineColor: () => C.border,
           paddingTop: () => 2,
@@ -69,10 +64,24 @@ function buildTotals(ver) {
           paddingLeft: () => 4,
           paddingRight: () => 4,
         },
-        margin: [0, 0, 0, 4],
+        margin: [0, 4, 0, 8],
       },
     ],
-  }];
+  };
+}
+
+function buildTotals(ver) {
+  if (!ver.totalsByCurrency) return [];
+
+  const entries = ver.totalsByCurrency instanceof Map
+    ? Array.from(ver.totalsByCurrency.entries())
+    : Object.entries(ver.totalsByCurrency);
+
+  if (!entries.length) return [];
+
+  return entries
+    .map(([currency, totals]) => buildCurrencyTotals(currency, totals, ver))
+    .filter(Boolean);
 }
 
 function buildTerms(ver) {
@@ -103,4 +112,4 @@ function buildTerms(ver) {
   ];
 }
 
-module.exports = { buildTotals, buildTerms };
+module.exports = { buildTotals, buildCurrencyTotals, buildTerms };

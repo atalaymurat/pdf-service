@@ -1,7 +1,6 @@
 const { localeDate, capitalizeTR } = require("../../lib/helpers");
 const { resolveImage } = require("../../lib/imageLoader");
 const buildItemsTable = require("./buildItems");
-const { buildTotals } = require("./buildSummary");
 const buildTerms = require("./buildTerms");
 const buildBankAccounts = require("./buildBankAccounts");
 const buildItemDetails = require("../shared/buildItemDetails");
@@ -61,7 +60,6 @@ module.exports = async function (data) {
       buildDocTitle(docType),
       buildCompany(company, addrStr, data.contact),
       buildItemsTable(ver),
-      ...buildTotals(ver),
       ...buildTerms(ver.offerTerms, ver.docType || docType),
       ...(["Proforma", "Sipariş", "Sözleşme"].includes(docType)
         ? buildBankAccounts(data.bankAccounts)
