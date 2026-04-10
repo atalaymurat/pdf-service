@@ -4,6 +4,7 @@ const bodyParser = require("body-parser");
 const path = require("path");
 const internalAuth = require("./middleware/internalAuth");
 const pdfRoutes = require("./routes/pdfRoutes");
+const logger = require("./lib/logger");
 
 const app = express();
 app.use(bodyParser.json({ limit: "10mb" }));
@@ -19,4 +20,4 @@ app.use("/generate", pdfRoutes);
 app.use("/pdfs", express.static(path.join(__dirname, "outputs")));
 
 const PORT = process.env.PORT || 3023;
-app.listen(PORT, () => console.log(`Postiva PDF service running on port ${PORT}`));
+app.listen(PORT, () => logger.info({ message: `Server running on port ${PORT}` }));

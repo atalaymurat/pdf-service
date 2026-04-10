@@ -1,12 +1,13 @@
 const PdfPrinter = require("pdfmake");
 const path = require("path");
 const fs = require("fs");
+const logger = require("../lib/logger");
 
 function resolveFontPath(noto, roboto) {
   const notoPath   = path.join(__dirname, "../assets/fonts", noto);
   const robotoPath = path.join(__dirname, "../assets/fonts", roboto);
   if (fs.existsSync(notoPath)) return notoPath;
-  console.warn(`[pdf] Font bulunamadı: ${noto}, Roboto'ya dönülüyor.`);
+  logger.warn({ message: "Font not found, falling back to Roboto", font: noto });
   return robotoPath;
 }
 
