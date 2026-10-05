@@ -1,6 +1,5 @@
 const { formPrice, currencySymbol, capitalizeTR } = require("../../lib/helpers");
 const { buildCurrencyTotals } = require("./buildSummary");
-const { resolveImage } = require("../../lib/imageLoader");
 
 const HDR_BG = "#0ea5e9";
 const C = { accent: "#0ea5e9", muted: "#6b7280" };
@@ -29,28 +28,18 @@ function buildOptions(options) {
   };
 }
 
-async function buildTable(currency, items, startIndex, labelText) {
+function buildTable(currency, items, startIndex, labelText) {
   const sym = currencySymbol(currency);
-  const hasImages = items.some(item => item.image);
 
-  const headerRow = hasImages
-    ? [
-        { text: "",                          style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 35 },
-        { text: "#",                        style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 22 },
-        { text: "ÜRÜN / HİZMET AÇIKLAMASI", style: "tableHeader", fillColor: HDR_BG },
-        { text: "MİKTAR",                   style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: "8%" },
-        { text: `BİRİM FİYAT (${sym})`,     style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
-        { text: `TOPLAM (${sym})`,          style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
-      ]
-    : [
-        { text: "#",                        style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 22 },
-        { text: "ÜRÜN / HİZMET AÇIKLAMASI", style: "tableHeader", fillColor: HDR_BG },
-        { text: "MİKTAR",                   style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: "8%" },
-        { text: `BİRİM FİYAT (${sym})`,     style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
-        { text: `TOPLAM (${sym})`,          style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
-      ];
+  const headerRow = [
+    { text: "#", style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 22 },
+    { text: "ÜRÜN / HİZMET AÇIKLAMASI", style: "tableHeader", fillColor: HDR_BG },
+    { text: "MİKTAR", style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: "8%" },
+    { text: `BİRİM FİYAT (${sym})`, style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
+    { text: `TOPLAM (${sym})`, style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
+  ];
 
-  const dataRows = await Promise.all(items.map(async (item, i) => {
+  const dataRows = items.map((item, i) => {
     const opts = buildOptions(item.selectedOptions);
     const descStack = [
       { text: s(item.title).toLocaleUpperCase("tr-TR"), style: "tableRow", bold: true },
@@ -59,36 +48,21 @@ async function buildTable(currency, items, startIndex, labelText) {
       opts,
     ].filter(Boolean);
 
-    if (hasImages) {
-      const resolvedImage = item.image ? await resolveImage(item.image).catch(() => null) : null;
-      const imageCell = resolvedImage
-        ? { image: resolvedImage, fit: [30, 30], width: 30, height: 30, alignment: "center" }
-        : { text: "", width: 30, height: 30 };
-      return [
-        imageCell,
-        { text: String(startIndex + i + 1).padStart(2, "0"), alignment: "center", style: "tableRow" },
-        { stack: descStack },
-        { text: String(item.quantity ?? 1), alignment: "center", style: "tableRow" },
-        { text: formPrice(item.priceOffer),             alignment: "right", style: "tableRow" },
-        { text: formPrice(item.priceOfferTotal?.value), alignment: "right", style: "tableRow" },
-      ];
-    } else {
-      return [
-        { text: String(startIndex + i + 1).padStart(2, "0"), alignment: "center", style: "tableRow" },
-        { stack: descStack },
-        { text: String(item.quantity ?? 1), alignment: "center", style: "tableRow" },
-        { text: formPrice(item.priceOffer),             alignment: "right", style: "tableRow" },
-        { text: formPrice(item.priceOfferTotal?.value), alignment: "right", style: "tableRow" },
-      ];
-    }
-  }));
+    return [
+      { text: String(startIndex + i + 1).padStart(2, "0"), alignment: "center", style: "tableRow" },
+      { stack: descStack },
+      { text: String(item.quantity ?? 1), alignment: "center", style: "tableRow" },
+      { text: formPrice(item.priceOffer),             alignment: "right", style: "tableRow" },
+      { text: formPrice(item.priceOfferTotal?.value), alignment: "right", style: "tableRow" },
+    ];
+  });
 
   return {
     table: {
       headerRows: 1,
       dontBreakRows: true,
       keepWithHeaderRows: 1,
-      widths: hasImages ? [35, 22, "*", "8%", "18%", "18%"] : [22, "*", "8%", "18%", "18%"],
+      widths: [22, "*", "8%", "18%", "18%"],
       body: [headerRow, ...dataRows],
     },
     layout: {
@@ -106,7 +80,7 @@ async function buildTable(currency, items, startIndex, labelText) {
   };
 }
 
-module.exports = async function buildItemsTable(ver) {
+module.exports = function buildItemsTable(ver) {
   const items = ver.lineItems || [];
   const totalsMap = ver.totalsByCurrency || {};
 
@@ -126,7 +100,7 @@ module.exports = async function buildItemsTable(ver) {
     return {
       stack: [
         sectionLabel("ÜRÜNLER / HİZMETLER"),
-        await buildTable(currency, grouped[currency], 0, "ÜRÜNLER / HİZMETLER"),
+        buildTable(currency, grouped[currency], 0, "ÜRÜNLER / HİZMETLER"),
         ...(totalsBlock ? [totalsBlock] : []),
       ],
       headlineLevel: 1,
@@ -136,19 +110,19 @@ module.exports = async function buildItemsTable(ver) {
   // Multi-currency: her grup başlık + tablo + kendi totals
   const blocks = [];
   let runningIndex = 0;
-  for (const currency of currencyOrder) {
+  currencyOrder.forEach((currency) => {
     const label = `${CURRENCY_LABEL[currency] || currency} ÜRÜNLERİ`;
     const totalsBlock = buildCurrencyTotals(currency, totalsMap[currency] || {}, ver);
     blocks.push({
       stack: [
         sectionLabel(label),
-        await buildTable(currency, grouped[currency], runningIndex, label),
+        buildTable(currency, grouped[currency], runningIndex, label),
         ...(totalsBlock ? [totalsBlock] : []),
       ],
       headlineLevel: 1,
     });
     runningIndex += grouped[currency].length;
-  }
+  });
 
   return { stack: blocks, headlineLevel: 1 };
 };

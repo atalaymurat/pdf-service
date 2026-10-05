@@ -34,7 +34,6 @@ module.exports = async function (data) {
     .join(", ");
 
   const logo = data.logoUrl ? await resolveImage(data.logoUrl).catch(() => null) : null;
-  const itemsTable = await buildItemsTable(ver);
 
   return {
     pageSize: "A4",
@@ -54,7 +53,7 @@ module.exports = async function (data) {
       buildAccentLine(),
       buildDocTitle(docType),
       buildCompany(company, addrStr, data.contact),
-      itemsTable,
+      buildItemsTable(ver),
       ...buildTerms(ver.offerTerms, ver.docType),
       ...(["Proforma", "Sipariş", "Sözleşme"].includes(docType) ? buildBankAccounts(data.bankAccounts) : []),
     ],
