@@ -20,11 +20,12 @@ function buildTable(currency, items, startIndex, labelText) {
   const sym = currencySymbol(currency);
 
   const headerRow = [
-    { text: "#", style: "tableHeader", fillColor: HDR_BG, alignment: "center" },
-    { text: "AÇIKLAMA", style: "tableHeader", fillColor: HDR_BG },
-    { text: "MİKTAR", style: "tableHeader", fillColor: HDR_BG, alignment: "center" },
-    { text: `BİRİM FİYAT (${sym})`, style: "tableHeader", fillColor: HDR_BG, alignment: "right" },
-    { text: `TOPLAM (${sym})`, style: "tableHeader", fillColor: HDR_BG, alignment: "right" },
+    { text: "",                          style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 35 },
+    { text: "#",                        style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 22 },
+    { text: "AÇIKLAMA",                style: "tableHeader", fillColor: HDR_BG },
+    { text: "MİKTAR",                   style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: "8%" },
+    { text: `BİRİM FİYAT (${sym})`,     style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
+    { text: `TOPLAM (${sym})`,          style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
   ];
 
   const dataRows = items.map((item, i) => {
@@ -33,7 +34,12 @@ function buildTable(currency, items, startIndex, labelText) {
       item.notes ? { text: s(item.notes), fontSize: 7.5, color: "#9ca3af", italics: true, margin: [0, 1, 0, 0] } : null,
     ].filter(Boolean);
 
+    const imageCell = item.image
+      ? { image: item.image, fit: [30, 30], width: 30, height: 30, alignment: "center" }
+      : { text: "", width: 30, height: 30 };
+
     return [
+      imageCell,
       { text: String(startIndex + i + 1).padStart(2, "0"), alignment: "center", style: "tableRow" },
       { stack: descStack },
       { text: String(item.quantity ?? 1), alignment: "center", style: "tableRow" },
@@ -47,7 +53,7 @@ function buildTable(currency, items, startIndex, labelText) {
       headerRows: 1,
       dontBreakRows: true,
       keepWithHeaderRows: 1,
-      widths: [22, "*", "8%", "18%", "18%"],
+      widths: [35, 22, "*", "8%", "18%", "18%"],
       body: [headerRow, ...dataRows],
     },
     layout: {
