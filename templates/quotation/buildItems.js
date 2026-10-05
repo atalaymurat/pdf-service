@@ -58,11 +58,10 @@ function buildTable(currency, items, startIndex, labelText) {
       opts,
     ].filter(Boolean);
 
-    const imageCell = item.image
-      ? { image: item.image, fit: [30, 30], width: 30, height: 30, alignment: "center" }
-      : { text: "", width: 30, height: 30 };
-
     if (hasImages) {
+      const imageCell = item.image
+        ? { image: item.image, fit: [30, 30], width: 30, height: 30, alignment: "center" }
+        : { text: "", width: 30, height: 30 };
       return [
         imageCell,
         { text: String(startIndex + i + 1).padStart(2, "0"), alignment: "center", style: "tableRow" },

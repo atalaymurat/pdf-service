@@ -43,11 +43,10 @@ function buildTable(currency, items, startIndex, labelText) {
       item.notes ? { text: s(item.notes), fontSize: 7.5, color: "#9ca3af", italics: true, margin: [0, 1, 0, 0] } : null,
     ].filter(Boolean);
 
-    const imageCell = item.image
-      ? { image: item.image, fit: [30, 30], width: 30, height: 30, alignment: "center" }
-      : { text: "", width: 30, height: 30 };
-
     if (hasImages) {
+      const imageCell = item.image
+        ? { image: item.image, fit: [30, 30], width: 30, height: 30, alignment: "center" }
+        : { text: "", width: 30, height: 30 };
       return [
         imageCell,
         { text: String(startIndex + i + 1).padStart(2, "0"), alignment: "center", style: "tableRow" },
