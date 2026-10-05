@@ -5,6 +5,15 @@ const HDR_BG = "#0ea5e9";
 const C = { accent: "#0ea5e9", muted: "#6b7280" };
 const s = (v) => (v != null ? String(v) : "-");
 
+function placeholder() {
+  return {
+    stack: [
+      { canvas: [{ type: "rect", x: 0, y: 0, w: 30, h: 30, color: "#f3f4f6", r: 2 }] },
+    ],
+    width: 30,
+  };
+}
+
 const CURRENCY_LABEL = { EUR: "💶 EUR", USD: "💵 USD", TRY: "₺ TRY", GBP: "💷 GBP" };
 
 function sectionLabel(text) {
@@ -48,7 +57,7 @@ async function buildTable(currency, items, startIndex, labelText) {
       const resolvedImage = item.image ? await resolveImage(item.image).catch(() => null) : null;
       const imageCell = resolvedImage
         ? { image: resolvedImage, fit: [30, 30], width: 30, height: 30, alignment: "center" }
-        : { text: "", width: 30, height: 30 };
+        : placeholder();
       return [
         imageCell,
         { text: String(startIndex + i + 1).padStart(2, "0"), alignment: "center", style: "tableRow" },
