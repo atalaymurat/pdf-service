@@ -1,5 +1,6 @@
 const { formPrice, currencySymbol, capitalizeTR } = require("../../lib/helpers");
 const { buildCurrencyTotals } = require("./buildSummary");
+const { resolveImage } = require("../../lib/imageLoader");
 
 const HDR_BG = "#0ea5e9";
 const C = { accent: "#0ea5e9", muted: "#6b7280" };
@@ -28,7 +29,7 @@ function buildOptions(options) {
   };
 }
 
-function buildTable(currency, items, startIndex, labelText) {
+async function buildTable(currency, items, startIndex, labelText) {
   const sym = currencySymbol(currency);
   const hasImages = items.some(item => item.image);
 
@@ -49,7 +50,7 @@ function buildTable(currency, items, startIndex, labelText) {
         { text: `TOPLAM (${sym})`,          style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
       ];
 
-  const dataRows = items.map((item, i) => {
+  const dataRows = await Promise.all(items.map(async (item, i) => {
     const opts = buildOptions(item.selectedOptions);
     const descStack = [
       { text: s(item.title).toLocaleUpperCase("tr-TR"), style: "tableRow", bold: true },
@@ -59,8 +60,9 @@ function buildTable(currency, items, startIndex, labelText) {
     ].filter(Boolean);
 
     if (hasImages) {
-      const imageCell = item.image
-        ? { image: item.image, fit: [30, 30], width: 30, height: 30, alignment: "center" }
+      const resolvedImage = item.image ? await resolveImage(item.image).catch(() => null) : null;
+      const imageCell = resolvedImage
+        ? { image: resolvedImage, fit: [30, 30], width: 30, height: 30, alignment: "center" }
         : { text: "", width: 30, height: 30 };
       return [
         imageCell,
@@ -79,7 +81,7 @@ function buildTable(currency, items, startIndex, labelText) {
         { text: formPrice(item.priceOfferTotal?.value), alignment: "right", style: "tableRow" },
       ];
     }
-  });
+  }));
 
   return {
     table: {
@@ -104,7 +106,7 @@ function buildTable(currency, items, startIndex, labelText) {
   };
 }
 
-module.exports = function buildItemsTable(ver) {
+module.exports = async function buildItemsTable(ver) {
   const items = ver.lineItems || [];
   const totalsMap = ver.totalsByCurrency || {};
 
@@ -124,7 +126,7 @@ module.exports = function buildItemsTable(ver) {
     return {
       stack: [
         sectionLabel("ÜRÜNLER / HİZMETLER"),
-        buildTable(currency, grouped[currency], 0, "ÜRÜNLER / HİZMETLER"),
+        await buildTable(currency, grouped[currency], 0, "ÜRÜNLER / HİZMETLER"),
         ...(totalsBlock ? [totalsBlock] : []),
       ],
       headlineLevel: 1,
@@ -134,19 +136,19 @@ module.exports = function buildItemsTable(ver) {
   // Multi-currency: her grup başlık + tablo + kendi totals
   const blocks = [];
   let runningIndex = 0;
-  currencyOrder.forEach((currency) => {
+  for (const currency of currencyOrder) {
     const label = `${CURRENCY_LABEL[currency] || currency} ÜRÜNLERİ`;
     const totalsBlock = buildCurrencyTotals(currency, totalsMap[currency] || {}, ver);
     blocks.push({
       stack: [
         sectionLabel(label),
-        buildTable(currency, grouped[currency], runningIndex, label),
+        await buildTable(currency, grouped[currency], runningIndex, label),
         ...(totalsBlock ? [totalsBlock] : []),
       ],
       headlineLevel: 1,
     });
     runningIndex += grouped[currency].length;
-  });
+  }
 
   return { stack: blocks, headlineLevel: 1 };
 };

@@ -40,6 +40,7 @@ module.exports = async function (data) {
     : null;
 
   const itemDetails = await buildItemDetails(ver.lineItems, { accentColor: C.accent });
+  const itemsTable = await buildItemsTable(ver);
 
   return {
     pageSize: "A4",
@@ -59,7 +60,7 @@ module.exports = async function (data) {
       buildAccentLine(),
       buildDocTitle(docType),
       buildCompany(company, addrStr, data.contact),
-      buildItemsTable(ver),
+      itemsTable,
       ...buildTerms(ver.offerTerms, ver.docType || docType),
       ...(["Proforma", "Sipariş", "Sözleşme"].includes(docType)
         ? buildBankAccounts(data.bankAccounts)
