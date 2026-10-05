@@ -49,7 +49,7 @@ module.exports = async function (data) {
       return node.headlineLevel === 1 && following.length === 0;
     },
     content: [
-      buildHeader(logo, docType, docCode, ver),
+      buildHeader(logo, docType, docCode, ver, data.organization),
       buildAccentLine(),
       buildDocTitle(docType),
       buildCompany(company, addrStr, data.contact),
@@ -62,7 +62,7 @@ module.exports = async function (data) {
   };
 };
 
-function buildHeader(logo, docType, docCode, ver) {
+function buildHeader(logo, docType, docCode, ver, organization) {
   const logoCell = logo
     ? { image: logo, fit: [120, 48] }
     : {
@@ -80,9 +80,20 @@ function buildHeader(logo, docType, docCode, ver) {
         },
       };
 
+  const orgInfo = [];
+  if (organization?.name) {
+    orgInfo.push({ text: capitalizeTR(s(organization.name)), fontSize: 10, bold: true, color: C.ink, margin: [0, 4, 0, 0] });
+  }
+  if (organization?.address) {
+    orgInfo.push({ text: capitalizeTR(s(organization.address)), fontSize: 7, color: C.muted, margin: [0, 1, 0, 0] });
+  }
+
   return {
     columns: [
-      { stack: [logoCell], width: 130 },
+      {
+        stack: [logoCell, ...orgInfo],
+        width: 200,
+      },
       { width: "*", text: "" },
       {
         width: "auto",
