@@ -9,9 +9,9 @@ const s = (v) => (v != null ? String(v) : "-");
 function placeholder() {
   return {
     stack: [
-      { canvas: [{ type: "rect", x: 0, y: 0, w: 30, h: 30, color: "#f3f4f6", r: 2 }] },
+      { canvas: [{ type: "rect", x: 0, y: 0, w: 60, h: 60, color: "#f3f4f6", r: 2 }] },
     ],
-    width: 30,
+    width: 60,
   };
 }
 
@@ -44,7 +44,7 @@ async function buildTable(currency, items, startIndex, labelText) {
 
   const headerRow = hasImages
     ? [
-        { text: "", style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 35 },
+        { text: "", style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 60 },
         { text: "#", style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 22 },
         { text: "ÜRÜN / HİZMET AÇIKLAMASI", style: "tableHeader", fillColor: HDR_BG },
         { text: "MİKTAR", style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: "8%" },
@@ -71,7 +71,7 @@ async function buildTable(currency, items, startIndex, labelText) {
     if (hasImages) {
       const resolvedImage = item.image ? await resolveImage(item.image).catch(() => null) : null;
       const imageCell = resolvedImage
-        ? { image: resolvedImage, fit: [30, 30], width: 30, height: 30, alignment: "center" }
+        ? { image: resolvedImage, fit: [60, 60], width: 60, height: 60, alignment: "center" }
         : placeholder();
       return [
         imageCell,
@@ -97,7 +97,7 @@ async function buildTable(currency, items, startIndex, labelText) {
       headerRows: 1,
       dontBreakRows: true,
       keepWithHeaderRows: 1,
-      widths: hasImages ? [35, 22, "*", "8%", "18%", "18%"] : [22, "*", "8%", "18%", "18%"],
+      widths: hasImages ? [60, 22, "*", "8%", "18%", "18%"] : [22, "*", "8%", "18%", "18%"],
       body: [headerRow, ...dataRows],
     },
     layout: {
