@@ -1,5 +1,6 @@
 const { formPrice, currencySymbol, capitalizeTR } = require("../../lib/helpers");
 const { buildCurrencyTotals } = require("./buildSummary");
+const { resolveImage } = require("../../lib/imageLoader");
 
 const HDR_BG = "#0ea5e9";
 const C = { accent: "#0ea5e9", muted: "#6b7280" };
