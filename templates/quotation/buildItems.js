@@ -30,15 +30,24 @@ function buildOptions(options) {
 
 function buildTable(currency, items, startIndex, labelText) {
   const sym = currencySymbol(currency);
+  const hasImages = items.some(item => item.image);
 
-  const headerRow = [
-    { text: "",                          style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 35 },
-    { text: "#",                        style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 22 },
-    { text: "ÜRÜN / HİZMET AÇIKLAMASI", style: "tableHeader", fillColor: HDR_BG },
-    { text: "MİKTAR",                   style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: "8%" },
-    { text: `BİRİM FİYAT (${sym})`,     style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
-    { text: `TOPLAM (${sym})`,          style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
-  ];
+  const headerRow = hasImages
+    ? [
+        { text: "",                          style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 35 },
+        { text: "#",                        style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 22 },
+        { text: "ÜRÜN / HİZMET AÇIKLAMASI", style: "tableHeader", fillColor: HDR_BG },
+        { text: "MİKTAR",                   style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: "8%" },
+        { text: `BİRİM FİYAT (${sym})`,     style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
+        { text: `TOPLAM (${sym})`,          style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
+      ]
+    : [
+        { text: "#",                        style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: 22 },
+        { text: "ÜRÜN / HİZMET AÇIKLAMASI", style: "tableHeader", fillColor: HDR_BG },
+        { text: "MİKTAR",                   style: "tableHeader", fillColor: HDR_BG, alignment: "center", width: "8%" },
+        { text: `BİRİM FİYAT (${sym})`,     style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
+        { text: `TOPLAM (${sym})`,          style: "tableHeader", fillColor: HDR_BG, alignment: "right", width: "18%" },
+      ];
 
   const dataRows = items.map((item, i) => {
     const opts = buildOptions(item.selectedOptions);
@@ -53,14 +62,24 @@ function buildTable(currency, items, startIndex, labelText) {
       ? { image: item.image, fit: [30, 30], width: 30, height: 30, alignment: "center" }
       : { text: "", width: 30, height: 30 };
 
-    return [
-      imageCell,
-      { text: String(startIndex + i + 1).padStart(2, "0"), alignment: "center", style: "tableRow" },
-      { stack: descStack },
-      { text: String(item.quantity ?? 1), alignment: "center", style: "tableRow" },
-      { text: formPrice(item.priceOffer),             alignment: "right", style: "tableRow" },
-      { text: formPrice(item.priceOfferTotal?.value), alignment: "right", style: "tableRow" },
-    ];
+    if (hasImages) {
+      return [
+        imageCell,
+        { text: String(startIndex + i + 1).padStart(2, "0"), alignment: "center", style: "tableRow" },
+        { stack: descStack },
+        { text: String(item.quantity ?? 1), alignment: "center", style: "tableRow" },
+        { text: formPrice(item.priceOffer),             alignment: "right", style: "tableRow" },
+        { text: formPrice(item.priceOfferTotal?.value), alignment: "right", style: "tableRow" },
+      ];
+    } else {
+      return [
+        { text: String(startIndex + i + 1).padStart(2, "0"), alignment: "center", style: "tableRow" },
+        { stack: descStack },
+        { text: String(item.quantity ?? 1), alignment: "center", style: "tableRow" },
+        { text: formPrice(item.priceOffer),             alignment: "right", style: "tableRow" },
+        { text: formPrice(item.priceOfferTotal?.value), alignment: "right", style: "tableRow" },
+      ];
+    }
   });
 
   return {
@@ -68,7 +87,7 @@ function buildTable(currency, items, startIndex, labelText) {
       headerRows: 1,
       dontBreakRows: true,
       keepWithHeaderRows: 1,
-      widths: [35, 22, "*", "8%", "18%", "18%"],
+      widths: hasImages ? [35, 22, "*", "8%", "18%", "18%"] : [22, "*", "8%", "18%", "18%"],
       body: [headerRow, ...dataRows],
     },
     layout: {
