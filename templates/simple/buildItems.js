@@ -14,7 +14,7 @@ function placeholder() {
   };
 }
 
-const CURRENCY_LABEL = { EUR: "💶 EUR", USD: "💵 USD", TRY: "₺ TRY", GBP: "💷 GBP" };
+const CURRENCY_LABEL = { EUR: "EUR", USD: "USD", TRY: "TRY", GBP: "GBP" };
 
 function sectionLabel(text) {
   return {
